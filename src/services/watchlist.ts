@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma.js";
 import type { Movie } from "@/types/movie.js";
 import { NotFoundError } from "@middleware/errorHandler.js";
 
-export async function getWatchlist(userId: number) {
+export async function getWatchlist(userId: string) {
   return await prisma.watchlist.findMany({
     where: { userId },
     include: { movie: true },
@@ -10,7 +10,7 @@ export async function getWatchlist(userId: number) {
   });
 }
 
-export async function addMovieToWatchlist(userId: number, movie: Movie) {
+export async function addMovieToWatchlist(userId: string, movie: Movie) {
   return await prisma.$transaction(async (tx) => {
     // upsert movie into Movies table
     const movieEntry = await tx.movies.upsert({
@@ -48,7 +48,7 @@ export async function addMovieToWatchlist(userId: number, movie: Movie) {
 }
 
 export async function addBulkMoviesToWatchlist(
-  userId: number,
+  userId: string,
   movies: Movie[],
 ) {
   const result = await prisma.$transaction(async (tx) => {
@@ -94,7 +94,7 @@ export async function addBulkMoviesToWatchlist(
 }
 
 export async function removeMovieFromWatchlist(
-  userId: number,
+  userId: string,
   movieId: number,
 ) {
   const watchlistEntry = await prisma.watchlist.findFirst({

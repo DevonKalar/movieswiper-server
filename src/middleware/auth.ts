@@ -3,6 +3,7 @@ import type { Request, Response, NextFunction } from "express";
 import rateLimit from "express-rate-limit";
 import jwt from "jsonwebtoken";
 import { UnauthorizedError } from "@middleware/errorHandler.js";
+import { config } from "@/config/env.js";
 
 export const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -15,9 +16,7 @@ export const requireUser = (
   res: Response,
   next: NextFunction,
 ) => {
-  // Check for token in Authorization header OR cookies
-  const token =
-    req.headers.authorization?.split(" ")[1] || req.cookies?.auth_token;
+  const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) {
     return next(new UnauthorizedError("No token"));
@@ -26,7 +25,7 @@ export const requireUser = (
   try {
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || "",
+      config.jwtSecret,
     ) as JwtPayload;
     req.user = decoded;
     next();
@@ -40,8 +39,7 @@ export const optionalUser = (
   res: Response,
   next: NextFunction,
 ) => {
-  const token =
-    req.headers.authorization?.split(" ")[1] || req.cookies?.auth_token;
+  const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) {
     return next();
@@ -50,7 +48,7 @@ export const optionalUser = (
   try {
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || "",
+      config.jwtSecret,
     ) as JwtPayload;
     req.user = decoded;
     next();

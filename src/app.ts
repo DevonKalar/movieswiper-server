@@ -1,6 +1,5 @@
 import express from "express";
 import cors from "cors";
-import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
 import { config } from "./config/env.js";
 import appRouter from "./routes/index.js";
@@ -10,9 +9,6 @@ const app = express();
 
 // Trust proxy for production environments (needed for rate limiting behind proxies)
 app.set("trust proxy", 1);
-
-// Cookie parser middleware
-app.use(cookieParser());
 
 // CORS configuration
 app.use(

@@ -5,7 +5,7 @@ export type SafeUser = Omit<User, "password">;
 
 // Auth user data (without password)
 export type AuthUser = {
-  id: number;
+  id: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -14,11 +14,20 @@ export type AuthUser = {
 // Response types
 export type LoginResponse = {
   message: string;
+  accessToken: string;
+  refreshToken: string;
 } & AuthUser;
 
 export type RegisterResponse = {
   message: string;
+  accessToken: string;
+  refreshToken: string;
 } & AuthUser;
+
+export type RefreshResponse = {
+  accessToken: string;
+  refreshToken: string;
+};
 
 export type LogoutResponse = {
   message: string;

@@ -15,7 +15,7 @@ export async function fetchGuestRecommendations(page: number) {
 }
 
 export async function fetchUserRecommendations(
-  userId: number,
+  userId: string,
   startPage: number,
 ) {
   const limit = 20;

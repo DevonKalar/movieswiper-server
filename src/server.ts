@@ -1,14 +1,16 @@
-import dotenv from "dotenv";
 import { config } from "./config/env.js";
 import app from "./app.js";
 
-// Load environment variables
-dotenv.config();
-
 // Validate required environment variables
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = config.jwtSecret;
 if (!JWT_SECRET) {
   console.error("Error: JWT_SECRET is not defined in environment variables.");
+  process.exit(1);
+}
+
+const DATABASE_URL = config.databaseUrl;
+if (!DATABASE_URL) {
+  console.error("Error: DATABASE_URL is not defined in environment variables.");
   process.exit(1);
 }
 
@@ -17,7 +19,7 @@ const PORT = config.port;
 // Start the server
 const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
+  console.log(`Environment: ${config.nodeEnvironment}`);
   console.log("CORS Origins:", config.corsOrigins);
 });
 

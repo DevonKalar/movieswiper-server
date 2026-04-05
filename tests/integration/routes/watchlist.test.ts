@@ -1,13 +1,11 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
 import request from "supertest";
 import express from "express";
-import jwt from "jsonwebtoken";
 import prisma from "@/lib/prisma.js";
 import watchlistRouter from "@routes/watchlist.js";
 import { requireUser } from "@middleware/auth.js";
 import { errorHandler } from "@middleware/errorHandler.js";
 import type { Movie } from "@/types/movie.js";
-import { config } from "@/config/env.js";
 
 const app = express();
 app.use(express.json());
@@ -17,7 +15,6 @@ app.use(errorHandler);
 describe("Watchlist Integration Tests", () => {
   let userId: string;
   let movieId: number;
-  let authToken: string;
 
   const testMovieData: { movies: Movie[] } = {
     movies: [
@@ -44,9 +41,6 @@ describe("Watchlist Integration Tests", () => {
       },
     });
     userId = testUser.id;
-
-    // Generate auth token
-    authToken = jwt.sign({ id: testUser.id }, config.jwtSecret);
 
     // Create a test movie
     const testMovie = await prisma.movies.create({
@@ -82,7 +76,7 @@ describe("Watchlist Integration Tests", () => {
     it("should return empty watchlist for authenticated user", async () => {
       const response = await request(app)
         .get("/api/watchlist")
-        .set("Authorization", `Bearer ${authToken}`);
+        .set("X-User-ID", userId);
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("watchlist");
@@ -97,7 +91,7 @@ describe("Watchlist Integration Tests", () => {
 
       const response = await request(app)
         .get("/api/watchlist")
-        .set("Authorization", `Bearer ${authToken}`);
+        .set("X-User-ID", userId);
 
       expect(response.status).toBe(200);
       expect(response.body.watchlist).toHaveLength(1);
@@ -116,7 +110,7 @@ describe("Watchlist Integration Tests", () => {
     it("should add movies to watchlist", async () => {
       const response = await request(app)
         .post("/api/watchlist")
-        .set("Authorization", `Bearer ${authToken}`)
+        .set("X-User-ID", userId)
         .send(testMovieData);
 
       expect(response.status).toBe(201);
@@ -152,7 +146,7 @@ describe("Watchlist Integration Tests", () => {
 
       const response = await request(app)
         .post("/api/watchlist")
-        .set("Authorization", `Bearer ${authToken}`)
+        .set("X-User-ID", userId)
         .send(bulkMoviesData);
 
       expect(response.status).toBe(201);
@@ -174,7 +168,7 @@ describe("Watchlist Integration Tests", () => {
 
       const response = await request(app)
         .post("/api/watchlist")
-        .set("Authorization", `Bearer ${authToken}`)
+        .set("X-User-ID", userId)
         .send(invalidData);
 
       expect(response.status).toBe(400);
@@ -199,7 +193,7 @@ describe("Watchlist Integration Tests", () => {
 
       const response = await request(app)
         .delete(`/api/watchlist/${movieId}`)
-        .set("Authorization", `Bearer ${authToken}`);
+        .set("X-User-ID", userId);
 
       expect(response.status).toBe(204);
 
@@ -213,7 +207,7 @@ describe("Watchlist Integration Tests", () => {
     it("should return 404 when removing non-existent movie", async () => {
       const response = await request(app)
         .delete("/api/watchlist/99999")
-        .set("Authorization", `Bearer ${authToken}`);
+        .set("X-User-ID", userId);
 
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty(

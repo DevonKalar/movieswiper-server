@@ -21,11 +21,11 @@ function hashToken(token: string): string {
 }
 
 export function signAccessToken(userId: string): string {
-  return jwt.sign({ id: userId }, config.jwtSecret, { expiresIn: "15m" });
+  return jwt.sign({ sub: userId }, config.jwtSecret, { expiresIn: "15m" });
 }
 
 export function signRefreshToken(userId: string): string {
-  return jwt.sign({ id: userId }, config.jwtSecret, { expiresIn: "7d" });
+  return jwt.sign({ sub: userId }, config.jwtSecret, { expiresIn: "7d" });
 }
 
 export async function createRefreshToken(userId: string): Promise<string> {
@@ -59,8 +59,8 @@ export async function rotateRefreshToken(
 
   await prisma.refreshToken.delete({ where: { tokenHash } });
 
-  const accessToken = signAccessToken(payload.id);
-  const refreshToken = await createRefreshToken(payload.id);
+  const accessToken = signAccessToken(payload.sub!);
+  const refreshToken = await createRefreshToken(payload.sub!);
 
   return { accessToken, refreshToken };
 }

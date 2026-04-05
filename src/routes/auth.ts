@@ -46,10 +46,12 @@ authRouter.post(
       message: "Login successful",
       accessToken,
       refreshToken,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      id: user.id,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
     });
   },
 );
@@ -68,10 +70,12 @@ authRouter.post(
       message: "Registration successful",
       accessToken,
       refreshToken,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      id: user.id,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
     });
   },
 );

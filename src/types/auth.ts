@@ -16,13 +16,15 @@ export type LoginResponse = {
   message: string;
   accessToken: string;
   refreshToken: string;
-} & AuthUser;
+  user: AuthUser;
+};
 
 export type RegisterResponse = {
   message: string;
   accessToken: string;
   refreshToken: string;
-} & AuthUser;
+  user: AuthUser;
+};
 
 export type RefreshResponse = {
   accessToken: string;

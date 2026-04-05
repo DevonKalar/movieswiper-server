@@ -6,11 +6,11 @@ import tmdbRouter from "./tmdb.js";
 import watchlistRouter from "./watchlist.js";
 import recommendationsRouter from "./recommendations.js";
 // Middleware
-import { authRateLimiter, requireUser } from "@middleware/auth.js";
+import { requireUser } from "@middleware/auth.js";
 
 const appRouter = Router();
 
-appRouter.use("/auth", authRateLimiter, authRouter);
+appRouter.use("/auth", authRouter);
 appRouter.use("/openai", openaiRouter);
 appRouter.use("/tmdb", tmdbRouter);
 appRouter.use("/watchlist", requireUser, watchlistRouter);

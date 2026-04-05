@@ -20,9 +20,6 @@ recommendationsRouter.get(
     const { page } = req.validatedQuery as RecommendationQuery;
     const pageNumber = parseInt(page, 10);
     const userId = req.user?.id;
-    console.log(
-      `Received recommendation request for user ${userId ?? "guest"} on page ${pageNumber}`,
-    );
     const response = userId
       ? await fetchUserRecommendations(userId, pageNumber)
       : await fetchGuestRecommendations(pageNumber);

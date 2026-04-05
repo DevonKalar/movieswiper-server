@@ -15,7 +15,7 @@ export async function fetchGuestRecommendations(page: number) {
 }
 
 export async function fetchUserRecommendations(
-  userId: number,
+  userId: string,
   startPage: number,
 ) {
   const limit = 20;
@@ -38,9 +38,7 @@ export async function fetchUserRecommendations(
   while (tmdbResults.length < limit && currentPage < maxPages) {
     const movies = await fetchPopularMovies(currentPage);
     if (!movies?.results) break;
-    console.log(
-      `Fetched page ${currentPage} with ${movies.results.length} movies`,
-    );
+
     const filtered = movies.results.filter(
       (movie: Movie) => !watchlistIdSet.has(movie.id),
     );
@@ -50,7 +48,6 @@ export async function fetchUserRecommendations(
 
   // 3. Transform and return
   const movieResults = apiMoviesToMovies(tmdbResults.slice(0, limit));
-  console.log(`Returning ${movieResults.length} recommended movies`);
   return {
     results: movieResults,
     nextPage: movieResults.length >= limit ? currentPage : null,

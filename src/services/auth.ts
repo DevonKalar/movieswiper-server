@@ -1,56 +1,83 @@
+import { createHash } from "crypto";
 import prisma from "@/lib/prisma.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import type { Response } from "express";
-
-const isProduction = process.env.NODE_ENV === "production";
-
-export const COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: isProduction,
-  sameSite: isProduction ? ("none" as const) : ("lax" as const),
-  path: "/",
-  maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds
-} as const;
+import {
+  UnauthorizedError,
+  ConflictError,
+  NotFoundError,
+} from "@middleware/errorHandler.js";
+import { config } from "@/config/env.js";
 
 export interface UserPayload {
-  id: number;
+  id: string;
   email: string;
   firstName: string;
   lastName: string;
 }
 
-export function signToken(userId: number): string {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET!, {
-    expiresIn: "1d",
-  });
+function hashToken(token: string): string {
+  return createHash("sha256").update(token).digest("hex");
 }
 
-export function setAuthCookie(res: Response, token: string): void {
-  res.cookie("auth_token", token, COOKIE_OPTIONS);
+export function signAccessToken(userId: string): string {
+  return jwt.sign({ sub: userId }, config.jwtSecret, { expiresIn: "15m" });
 }
 
-export function clearAuthCookie(res: Response): void {
-  res.clearCookie("auth_token", {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-    path: "/",
+export function signRefreshToken(userId: string): string {
+  return jwt.sign({ sub: userId }, config.jwtSecret, { expiresIn: "7d" });
+}
+
+export async function createRefreshToken(userId: string): Promise<string> {
+  const token = signRefreshToken(userId);
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+  await prisma.refreshToken.create({
+    data: { userId, tokenHash: hashToken(token), expiresAt },
   });
+
+  return token;
+}
+
+export async function rotateRefreshToken(
+  rawToken: string,
+): Promise<{ accessToken: string; refreshToken: string }> {
+  let payload: jwt.JwtPayload;
+  try {
+    payload = jwt.verify(rawToken, config.jwtSecret) as jwt.JwtPayload;
+  } catch {
+    throw new UnauthorizedError("Invalid or expired refresh token");
+  }
+
+  const tokenHash = hashToken(rawToken);
+  const stored = await prisma.refreshToken.findUnique({ where: { tokenHash } });
+
+  if (!stored || stored.expiresAt < new Date()) {
+    if (stored) await prisma.refreshToken.delete({ where: { tokenHash } });
+    throw new UnauthorizedError("Invalid or expired refresh token");
+  }
+
+  await prisma.refreshToken.delete({ where: { tokenHash } });
+
+  const accessToken = signAccessToken(payload.sub!);
+  const refreshToken = await createRefreshToken(payload.sub!);
+
+  return { accessToken, refreshToken };
+}
+
+export async function revokeRefreshToken(rawToken: string): Promise<void> {
+  const tokenHash = hashToken(rawToken);
+  await prisma.refreshToken.deleteMany({ where: { tokenHash } });
 }
 
 export async function authenticateUser(
   email: string,
   password: string,
-): Promise<UserPayload | null> {
+): Promise<UserPayload> {
   const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) {
-    return null;
-  }
 
-  const isValid = await bcrypt.compare(password, user.password);
-  if (!isValid) {
-    return null;
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    throw new UnauthorizedError("Invalid email or password");
   }
 
   return {
@@ -67,14 +94,14 @@ export async function createUser(
   firstName: string,
   lastName: string,
 ): Promise<UserPayload> {
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) {
+    throw new ConflictError("User with that email already exists");
+  }
+
   const hashedPassword = await bcrypt.hash(password, 12);
   const user = await prisma.user.create({
-    data: {
-      email,
-      firstName,
-      lastName,
-      password: hashedPassword,
-    },
+    data: { email, firstName, lastName, password: hashedPassword },
   });
 
   return {
@@ -85,15 +112,11 @@ export async function createUser(
   };
 }
 
-export async function findUserById(
-  userId: number,
-): Promise<UserPayload | null> {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-  });
+export async function findUserById(userId: string): Promise<UserPayload> {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
 
   if (!user) {
-    return null;
+    throw new NotFoundError("User not found");
   }
 
   return {
@@ -102,9 +125,4 @@ export async function findUserById(
     firstName: user.firstName,
     lastName: user.lastName,
   };
-}
-
-export async function userExists(email: string): Promise<boolean> {
-  const user = await prisma.user.findUnique({ where: { email } });
-  return !!user;
 }

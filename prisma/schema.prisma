@@ -9,47 +9,46 @@ datasource db {
 }
 
 model User {
-  id              String         @id @default(uuid())
-  email           String         @unique
-  firstName       String
-  lastName        String
-  password        String
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  watchlistItems  Watchlist[]
-  refreshTokens   RefreshToken[]
+  id             String         @id @default(uuid())
+  email          String         @unique
+  firstName      String         @map("first_name")
+  lastName       String         @map("last_name")
+  password       String
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  watchlistItems Watchlist[]
+  refreshTokens  RefreshToken[]
 }
 
 model RefreshToken {
   id        Int      @id @default(autoincrement())
-  userId    String
-  tokenHash String   @unique
-  expiresAt DateTime
-  createdAt DateTime @default(now())
+  userId    String   @map("user_id")
+  tokenHash String   @unique @map("token_hash")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Movies {
-  id              Int           @id // TMDB movie ID
-  title           String
-  description     String
-  releaseDate     DateTime
-  posterUrl       String?
-  genres          String[]
-  ratings         Float
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  watchlistedBy   Watchlist[]
+  id          Int       @id // TMDB movie ID
+  title       String
+  description String
+  releaseDate DateTime  @map("release_date")
+  posterUrl   String?   @map("poster_url")
+  genres      String[]
+  ratings     Float
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  watchlistedBy Watchlist[]
 }
 
 model Watchlist {
   id        Int      @id @default(autoincrement())
-  userId    String
-  movieId   Int
-  createdAt DateTime @default(now())
+  userId    String   @map("user_id")
+  movieId   Int      @map("movie_id")
+  createdAt DateTime @default(now()) @map("created_at")
 
-  // Relations
   user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   movie Movies @relation(fields: [movieId], references: [id], onDelete: Cascade)
 

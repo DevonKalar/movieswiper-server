@@ -2,7 +2,6 @@ import { Router } from "express";
 // Routers
 import authRouter from "./auth.js";
 import openaiRouter from "./openai.js";
-import tmdbRouter from "./tmdb.js";
 import watchlistRouter from "./watchlist.js";
 import recommendationsRouter from "./recommendations.js";
 // Middleware
@@ -12,7 +11,6 @@ const appRouter = Router();
 
 appRouter.use("/auth", authRouter);
 appRouter.use("/openai", openaiRouter);
-appRouter.use("/tmdb", tmdbRouter);
 appRouter.use("/watchlist", requireUser, watchlistRouter);
 appRouter.use("/recommendations", recommendationsRouter);
 

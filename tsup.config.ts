@@ -2,7 +2,7 @@ import { defineConfig } from "tsup";
 import { resolve } from "path";
 
 export default defineConfig({
-  entry: ["src/server.ts"],
+  entry: ["src/server.ts", "src/jobs/syncPopularMovies/run.ts"],
   format: ["esm"],
   splitting: false,
   sourcemap: true,
@@ -20,6 +20,7 @@ export default defineConfig({
       "@services": resolve(__dirname, "src/services"),
       "@middleware": resolve(__dirname, "src/middleware"),
       "@utils": resolve(__dirname, "src/utils"),
+      "@clients": resolve(__dirname, "src/clients"),
     };
   },
 });

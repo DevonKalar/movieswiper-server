@@ -8,6 +8,11 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Reaction {
+  like
+  reject
+}
+
 model User {
   id             String         @id @default(uuid())
   email          String         @unique
@@ -16,8 +21,11 @@ model User {
   password       String
   createdAt      DateTime       @default(now()) @map("created_at")
   updatedAt      DateTime       @updatedAt @map("updated_at")
-  watchlistItems Watchlist[]
-  refreshTokens  RefreshToken[]
+  watchlistItems  Watchlist[]
+  refreshTokens   RefreshToken[]
+  movieReactions  MovieReaction[]
+
+  @@map("users")
 }
 
 model RefreshToken {
@@ -28,19 +36,24 @@ model RefreshToken {
   createdAt DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
 }
 
 model Movies {
-  id          Int       @id // TMDB movie ID
-  title       String
-  description String
-  releaseDate DateTime  @map("release_date")
-  posterUrl   String?   @map("poster_url")
-  genres      String[]
-  ratings     Float
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  watchlistedBy Watchlist[]
+  id            Int         @id // TMDB movie ID
+  title         String
+  description   String
+  releaseDate   DateTime    @map("release_date")
+  posterUrl     String?     @map("poster_url")
+  genres        String[]
+  ratings       Float
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+  watchlistedBy  Watchlist[]
+  movieReactions MovieReaction[]
+
+  @@map("movies")
 }
 
 model Watchlist {
@@ -53,4 +66,19 @@ model Watchlist {
   movie Movies @relation(fields: [movieId], references: [id], onDelete: Cascade)
 
   @@unique([userId, movieId])
+  @@map("watchlists")
+}
+
+model MovieReaction {
+  id        Int      @id @default(autoincrement())
+  userId    String   @map("user_id")
+  movieId   Int      @map("movie_id")
+  reaction  Reaction
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie Movies @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, movieId])
+  @@map("movie_reactions")
 }

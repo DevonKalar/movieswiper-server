@@ -53,7 +53,7 @@ describe("Validation Middleware", () => {
       expect(req.validatedQuery).toEqual(validQuery);
     });
 
-    it("should return 400 for invalid query parameters", async () => {
+    it("should return 422 for invalid query parameters", async () => {
       // Arrange
       const invalidQuery = { page: "not-a-number" };
       const req = { query: invalidQuery } as Partial<Request> as Request;
@@ -69,7 +69,7 @@ describe("Validation Middleware", () => {
       await middleware(req, res, next);
 
       // Assert
-      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.status).toHaveBeenCalledWith(422);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           message: "Invalid request query",
@@ -125,7 +125,7 @@ describe("Validation Middleware", () => {
       expect(req.validatedBody).toEqual(validBody);
     });
 
-    it("should return 400 for invalid request body (loginSchema)", async () => {
+    it("should return 422 for invalid request body (loginSchema)", async () => {
       // Arrange
       const invalidBody = { email: "invalid-email", password: "123" };
       const req = { body: invalidBody } as Partial<Request> as Request;
@@ -141,7 +141,7 @@ describe("Validation Middleware", () => {
       await middleware(req, res, next);
 
       // Assert
-      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.status).toHaveBeenCalledWith(422);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           message: "Invalid request body",
@@ -171,7 +171,7 @@ describe("Validation Middleware", () => {
       expect(req.validatedParams).toEqual(validParams);
     });
 
-    it("should return 400 for invalid request params (movieDetailsSchema)", async () => {
+    it("should return 422 for invalid request params (movieDetailsSchema)", async () => {
       // Arrange
       const invalidParams = { id: "" };
       const req = { params: invalidParams } as Partial<Request> as Request;
@@ -187,7 +187,7 @@ describe("Validation Middleware", () => {
       await middleware(req, res, next);
 
       // Assert
-      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.status).toHaveBeenCalledWith(422);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           message: "Invalid request params",

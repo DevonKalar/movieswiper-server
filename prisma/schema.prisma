@@ -24,6 +24,7 @@ model User {
   watchlistItems  Watchlist[]
   refreshTokens   RefreshToken[]
   movieReactions  MovieReaction[]
+  movieViews      MovieView[]
 
   @@map("users")
 }
@@ -52,6 +53,7 @@ model Movies {
   updatedAt     DateTime    @updatedAt @map("updated_at")
   watchlistedBy  Watchlist[]
   movieReactions MovieReaction[]
+  movieViews     MovieView[]
 
   @@map("movies")
 }
@@ -82,4 +84,16 @@ model MovieReaction {
 
   @@unique([userId, movieId])
   @@map("movie_reactions")
+}
+
+model MovieView {
+  id       Int      @id @default(autoincrement())
+  userId   String   @map("user_id")
+  movieId  Int      @map("movie_id")
+  viewedAt DateTime @default(now()) @map("viewed_at")
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie Movies @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@map("movie_views")
 }

@@ -11,7 +11,7 @@ export const validateReqBody = <T extends z.ZodRawShape>(
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res
-          .status(400)
+          .status(422)
           .json({ message: "Invalid request body", errors: error.issues });
       }
       next(error);
@@ -29,7 +29,7 @@ export const validateReqQuery = <T extends z.ZodRawShape>(
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res
-          .status(400)
+          .status(422)
           .json({ message: "Invalid request query", errors: error.issues });
       }
       next(error);
@@ -47,7 +47,7 @@ export const validateReqParams = <T extends z.ZodRawShape>(
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res
-          .status(400)
+          .status(422)
           .json({ message: "Invalid request params", errors: error.issues });
       }
       next(error);

@@ -156,7 +156,7 @@ describe("Watchlist Integration Tests", () => {
       );
     });
 
-    it("should return 400 for invalid movie data", async () => {
+    it("should return 422 for invalid movie data", async () => {
       const invalidData = {
         movies: [
           {
@@ -171,7 +171,7 @@ describe("Watchlist Integration Tests", () => {
         .set("X-User-ID", userId)
         .send(invalidData);
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(422);
       expect(response.body).toHaveProperty("message", "Invalid request body");
     });
 

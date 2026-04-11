@@ -75,6 +75,7 @@ model MovieReaction {
   movieId   Int      @map("movie_id")
   reaction  Reaction
   createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   movie Movies @relation(fields: [movieId], references: [id], onDelete: Cascade)

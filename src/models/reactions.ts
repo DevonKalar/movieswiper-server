@@ -1,20 +1,20 @@
-import * as z from "zod";
+import * as z from 'zod';
 
 const reactionSchema = z.object({
-  movieId: z.number().int().positive(),
-  reaction: z.enum(["like", "reject"]),
+    movieId: z.number().int().positive(),
+    reaction: z.enum(['like', 'reject']),
 });
 
 export const createReactionsSchema = z.object({
-  reactions: z.array(reactionSchema).min(1),
+    reactions: z.array(reactionSchema).min(1),
 });
 
 export const reactionParamsSchema = z.object({
-  id: z.coerce.number().int().positive(),
+    id: z.coerce.number().int().positive(),
 });
 
 export const updateReactionSchema = z.object({
-  reaction: z.enum(["like", "reject"]),
+    reaction: z.enum(['like', 'reject']),
 });
 
 export type CreateReactionsInput = z.infer<typeof createReactionsSchema>;

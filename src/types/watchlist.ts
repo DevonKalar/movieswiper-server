@@ -1,24 +1,24 @@
-import type { Watchlist, Movies } from "@/generated/prisma/client.js";
+import type { Watchlist, Movies } from '@/generated/prisma/client.js';
 
 // Domain types
 export type WatchlistItemWithMovie = Watchlist & {
-  movie: Movies;
+    movie: Movies;
 };
 
 // Response types
 export type WatchlistResponse = {
-  watchlist: WatchlistItemWithMovie[];
+    watchlist: WatchlistItemWithMovie[];
 };
 
 export type BulkAddToWatchlistResponse = {
-  message: string;
+    message: string;
 };
 
 export type RemoveFromWatchlistResponse = {
-  message: string;
+    message: string;
 };
 
 // Error responses
 export type WatchlistErrorResponse = {
-  message: string;
+    message: string;
 };

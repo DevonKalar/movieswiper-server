@@ -1,24 +1,24 @@
 // TMDB genre ID to name mapping
 export const GENRE_MAP: Record<number, string> = {
-  28: "Action",
-  12: "Adventure",
-  16: "Animation",
-  35: "Comedy",
-  80: "Crime",
-  99: "Documentary",
-  18: "Drama",
-  10751: "Family",
-  14: "Fantasy",
-  36: "History",
-  27: "Horror",
-  10402: "Music",
-  9648: "Mystery",
-  10749: "Romance",
-  878: "Science Fiction",
-  10770: "TV Movie",
-  53: "Thriller",
-  10752: "War",
-  37: "Western",
+    28: 'Action',
+    12: 'Adventure',
+    16: 'Animation',
+    35: 'Comedy',
+    80: 'Crime',
+    99: 'Documentary',
+    18: 'Drama',
+    10751: 'Family',
+    14: 'Fantasy',
+    36: 'History',
+    27: 'Horror',
+    10402: 'Music',
+    9648: 'Mystery',
+    10749: 'Romance',
+    878: 'Science Fiction',
+    10770: 'TV Movie',
+    53: 'Thriller',
+    10752: 'War',
+    37: 'Western',
 };
 
 /**
@@ -28,7 +28,7 @@ export const GENRE_MAP: Record<number, string> = {
  */
 
 export function mapIdToGenre(genreId: number): string | undefined {
-  return GENRE_MAP[genreId];
+    return GENRE_MAP[genreId];
 }
 
 /**
@@ -38,9 +38,7 @@ export function mapIdToGenre(genreId: number): string | undefined {
  */
 
 export function mapIdsToGenres(genreIds: number[]): string[] {
-  return genreIds
-    .map((id) => GENRE_MAP[id])
-    .filter((name): name is string => name !== undefined);
+    return genreIds.map((id) => GENRE_MAP[id]).filter((name): name is string => name !== undefined);
 }
 
 /**
@@ -50,13 +48,13 @@ export function mapIdsToGenres(genreIds: number[]): string[] {
  */
 
 export function mapGenreToId(genreName: string): number | undefined {
-  const lowerName = genreName.toLowerCase();
-  for (const [id, name] of Object.entries(GENRE_MAP)) {
-    if (name.toLowerCase() === lowerName) {
-      return parseInt(id, 10);
+    const lowerName = genreName.toLowerCase();
+    for (const [id, name] of Object.entries(GENRE_MAP)) {
+        if (name.toLowerCase() === lowerName) {
+            return parseInt(id, 10);
+        }
     }
-  }
-  return undefined;
+    return undefined;
 }
 
 /**
@@ -66,9 +64,9 @@ export function mapGenreToId(genreName: string): number | undefined {
  */
 
 export function mapGenresToIds(genreNames: string[]): number[] {
-  return genreNames
-    .map((name) => mapGenreToId(name))
-    .filter((id): id is number => id !== undefined);
+    return genreNames
+        .map((name) => mapGenreToId(name))
+        .filter((id): id is number => id !== undefined);
 }
 
 /**
@@ -78,5 +76,5 @@ export function mapGenresToIds(genreNames: string[]): number[] {
  */
 
 export function mapGenresToIdString(genreNames: string[]): string {
-  return mapGenresToIds(genreNames).join(",");
+    return mapGenresToIds(genreNames).join(',');
 }

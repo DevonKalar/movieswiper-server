@@ -1,6 +1,6 @@
-import express from "express";
-import appRouter from "./routes/index.js";
-import { errorHandler } from "./middleware/errorHandler.js";
+import express from 'express';
+import appRouter from './routes/index.js';
+import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 
@@ -14,12 +14,12 @@ app.use(express.urlencoded({ extended: true }));
 // });
 
 // Health check endpoint
-app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // API routes
-app.use("", appRouter);
+app.use('', appRouter);
 
 // Error handler — must be registered after all routes
 app.use(errorHandler);

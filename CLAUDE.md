@@ -28,6 +28,7 @@ npx prisma studio --config ./prisma.config.ts
 **Request flow:** `app.ts` (Express + middleware) → `routes/index.ts` (mounts sub-routers with auth middleware) → `routes/*.ts` (thin: validate + call service) → `services/*.ts` (business logic + Prisma) or `clients/*.ts` (external HTTP).
 
 **Key layers:**
+
 - `models/` — Zod schemas + inferred input types. Validation middleware (`@middleware/validate`) attaches parsed data to `req.validatedBody`, `req.validatedParams`, `req.validatedQuery`.
 - `routes/` — No business logic. Apply `validateReqBody/Params/Query`, read from `req.validated*`, call services, return typed responses.
 - `services/` — All business logic and database access via Prisma.
@@ -44,16 +45,16 @@ npx prisma studio --config ./prisma.config.ts
 
 Defined in both `tsconfig.json` and `vitest.config.ts`:
 
-| Alias | Maps to |
-|---|---|
-| `@/*` | `src/*` |
-| `@models/*` | `src/models/*` |
-| `@routes/*` | `src/routes/*` |
-| `@services/*` | `src/services/*` |
-| `@clients/*` | `src/clients/*` |
+| Alias           | Maps to            |
+| --------------- | ------------------ |
+| `@/*`           | `src/*`            |
+| `@models/*`     | `src/models/*`     |
+| `@routes/*`     | `src/routes/*`     |
+| `@services/*`   | `src/services/*`   |
+| `@clients/*`    | `src/clients/*`    |
 | `@middleware/*` | `src/middleware/*` |
-| `@utils/*` | `src/utils/*` |
-| `@tests/*` | `tests/*` |
+| `@utils/*`      | `src/utils/*`      |
+| `@tests/*`      | `tests/*`          |
 
 ## Testing
 

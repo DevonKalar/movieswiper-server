@@ -1,12 +1,12 @@
-import type { Movie } from "./movie.js";
+import type { Movie } from './movie.js';
 
 // Response types
 export type RecommendationsResponse = {
-  results: Movie[];
-  nextPage: number | null;
+    results: Movie[];
+    nextPage: number | null;
 };
 
 // Error responses
 export type RecommendationsErrorResponse = {
-  error: string;
+    error: string;
 };

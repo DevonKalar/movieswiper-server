@@ -86,53 +86,53 @@ The application uses PostgreSQL with three main tables:
 
 1. **Clone the repository**
 
-   ```bash
-   git clone <repository-url>
-   cd movieswiper-server
-   ```
+    ```bash
+    git clone <repository-url>
+    cd movieswiper-server
+    ```
 
 2. **Install dependencies**
 
-   ```bash
-   npm install
-   ```
+    ```bash
+    npm install
+    ```
 
 3. **Set up environment variables**
 
-   ```bash
-   cp .env.example .env
-   ```
+    ```bash
+    cp .env.example .env
+    ```
 
-   Update `.env` with your configuration:
+    Update `.env` with your configuration:
 
-   ```env
-   # Database
-   DATABASE_URL=postgresql://username:password@localhost:5432/movieswiper_app
+    ```env
+    # Database
+    DATABASE_URL=postgresql://username:password@localhost:5432/movieswiper_app
 
-   # API Keys
-   OPENAI_API_KEY=your_openai_api_key
-   TMDB_BEARER_TOKEN=your_tmdb_bearer_token
+    # API Keys
+    OPENAI_API_KEY=your_openai_api_key
+    TMDB_BEARER_TOKEN=your_tmdb_bearer_token
 
-   # Security
-   JWT_SECRET=your_jwt_secret_key
+    # Security
+    JWT_SECRET=your_jwt_secret_key
 
-   # Server Configuration
-   PORT=3000
-   NODE_ENV=development
-   CORS_ORIGINS=http://localhost:5173
-   ```
+    # Server Configuration
+    PORT=3000
+    NODE_ENV=development
+    CORS_ORIGINS=http://localhost:5173
+    ```
 
 4. **Set up the database**
 
-   ```bash
-   npx prisma migrate dev
-   npx prisma generate
-   ```
+    ```bash
+    npx prisma migrate dev
+    npx prisma generate
+    ```
 
 5. **Start development server**
-   ```bash
-   npm run dev
-   ```
+    ```bash
+    npm run dev
+    ```
 
 ## API Endpoints
 
@@ -175,19 +175,19 @@ POST /api/auth/register
 
 ```json
 {
-  "results": [
-    {
-      "id": 550,
-      "title": "Fight Club",
-      "overview": "A ticking-time-bomb insomniac...",
-      "poster_path": "/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",
-      "genre_ids": [18, 53, 35],
-      "genre_names": ["Drama", "Thriller", "Comedy"],
-      "vote_average": 8.433,
-      "release_date": "1999-10-15"
-    }
-  ],
-  "nextPage": 2
+    "results": [
+        {
+            "id": 550,
+            "title": "Fight Club",
+            "overview": "A ticking-time-bomb insomniac...",
+            "poster_path": "/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",
+            "genre_ids": [18, 53, 35],
+            "genre_names": ["Drama", "Thriller", "Comedy"],
+            "vote_average": 8.433,
+            "release_date": "1999-10-15"
+        }
+    ],
+    "nextPage": 2
 }
 ```
 
@@ -249,14 +249,14 @@ All error responses follow consistent formats:
 
 ```json
 {
-  "message": "Invalid request body",
-  "errors": [
-    {
-      "code": "invalid_type",
-      "path": ["email"],
-      "message": "Expected string, received number"
-    }
-  ]
+    "message": "Invalid request body",
+    "errors": [
+        {
+            "code": "invalid_type",
+            "path": ["email"],
+            "message": "Expected string, received number"
+        }
+    ]
 }
 ```
 

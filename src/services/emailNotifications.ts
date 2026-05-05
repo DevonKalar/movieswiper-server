@@ -108,7 +108,6 @@ export interface ProcessResult {
 
 export async function processPendingEmailNotifications(): Promise<ProcessResult> {
     const result: ProcessResult = { sent: 0, failed: 0, skipped: 0 };
-
     const claimed = await prisma.$transaction(async (tx) => {
         const batch = await tx.emailNotification.findMany({
             where: { status: EmailStatus.pending },

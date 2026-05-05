@@ -19,7 +19,7 @@ export const config: config = {
     port: process.env.PORT || 3000,
     apiKeys: {
         openai: process.env.OPENAI_API_KEY || '',
-        tmdb: process.env.TMDB_API_KEY || '',
+        tmdb: process.env.TMDB_BEARER_TOKEN || '',
         resend: process.env.RESEND_API_KEY || '',
     },
     jwtSecret: process.env.JWT_SECRET || '',

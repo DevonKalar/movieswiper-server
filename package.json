@@ -28,7 +28,6 @@
         "dotenv": "^17.2.3",
         "express": "^5.1.0",
         "jsonwebtoken": "^9.0.2",
-        "magicast": "^0.5.2",
         "openai": "^6.6.0",
         "pg": "^8.16.3",
         "resend": "^6.12.2",

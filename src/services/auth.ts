@@ -4,6 +4,11 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { UnauthorizedError, ConflictError, NotFoundError } from '@middleware/errorHandler.js';
 import { config } from '@/config/env.js';
+import {
+    enqueueEmailNotification,
+    buildIdempotencyKey,
+    EmailEventType,
+} from '@services/emailNotifications.js';
 
 export interface UserPayload {
     id: string;
@@ -95,6 +100,13 @@ export async function createUser(
     const hashedPassword = await bcrypt.hash(password, 12);
     const user = await prisma.user.create({
         data: { email, firstName, lastName, password: hashedPassword },
+    });
+
+    await enqueueEmailNotification({
+        userId: user.id,
+        eventType: EmailEventType.welcome,
+        templateData: { firstName: user.firstName, lastName: user.lastName },
+        idempotencyKey: buildIdempotencyKey(EmailEventType.welcome, user.id),
     });
 
     return {

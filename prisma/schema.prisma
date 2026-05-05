@@ -13,18 +13,33 @@ enum Reaction {
   reject
 }
 
+enum EmailStatus {
+  pending
+  sending
+  sent
+  failed
+}
+
+enum EmailEventType {
+  welcome
+  watchlist_milestone
+  weekly_digest
+  password_reset
+}
+
 model User {
-  id             String         @id @default(uuid())
-  email          String         @unique
-  firstName      String         @map("first_name")
-  lastName       String         @map("last_name")
-  password       String
-  createdAt      DateTime       @default(now()) @map("created_at")
-  updatedAt      DateTime       @updatedAt @map("updated_at")
-  watchlistItems  Watchlist[]
-  refreshTokens   RefreshToken[]
-  movieReactions  MovieReaction[]
-  movieViews      MovieView[]
+  id                 String               @id @default(uuid())
+  email              String               @unique
+  firstName          String               @map("first_name")
+  lastName           String               @map("last_name")
+  password           String
+  createdAt          DateTime             @default(now()) @map("created_at")
+  updatedAt          DateTime             @updatedAt @map("updated_at")
+  watchlistItems     Watchlist[]
+  refreshTokens      RefreshToken[]
+  movieReactions     MovieReaction[]
+  movieViews         MovieView[]
+  emailNotifications EmailNotification[]
 
   @@map("users")
 }
@@ -96,4 +111,24 @@ model MovieView {
   movie Movies @relation(fields: [movieId], references: [id], onDelete: Cascade)
 
   @@map("movie_views")
+}
+
+model EmailNotification {
+  id             String         @id @default(uuid())
+  userId         String         @map("user_id")
+  eventType      EmailEventType @map("event_type")
+  status         EmailStatus    @default(pending)
+  idempotencyKey String         @unique @map("idempotency_key")
+  templateData   Json           @map("template_data")
+  resendId       String?        @map("resend_id")
+  lastError      String?        @map("last_error")
+  attemptCount   Int            @default(0) @map("attempt_count")
+  sentAt         DateTime?      @map("sent_at")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@map("email_notifications")
 }

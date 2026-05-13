@@ -144,6 +144,15 @@ export async function processPendingEmailNotifications(): Promise<ProcessResult>
             continue;
         }
 
+        if (!notification.user.email) {
+            await prisma.emailNotification.update({
+                where: { id: notification.id },
+                data: { status: EmailStatus.failed, lastError: 'User has no email address' },
+            });
+            result.skipped++;
+            continue;
+        }
+
         try {
             const input = parseTemplateData(notification.eventType, notification.templateData);
             const rendered = renderTemplate(input);

@@ -1,12 +1,14 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { validateReqBody } from '@middleware/validate.js';
-import { loginSchema, registerSchema, refreshSchema, logoutSchema } from '@/models/auth.js';
-import type { LoginInput, RegisterInput, RefreshInput, LogoutInput } from '@/models/auth.js';
+import { loginSchema, registerSchema, refreshSchema, logoutSchema, promoteSchema } from '@/models/auth.js';
+import type { LoginInput, RegisterInput, RefreshInput, LogoutInput, PromoteInput } from '@/models/auth.js';
 import { requireUser } from '@middleware/auth.js';
 import type {
     LoginResponse,
     RegisterResponse,
+    GuestResponse,
+    PromoteResponse,
     RefreshResponse,
     LogoutResponse,
     CheckAuthResponse,
@@ -14,6 +16,8 @@ import type {
 import {
     authenticateUser,
     createUser,
+    createGuestUser,
+    promoteGuestUser,
     findUserById,
     signAccessToken,
     createRefreshToken,
@@ -38,6 +42,7 @@ authRouter.post(
             refreshToken,
             user: {
                 id: user.id,
+                isGuest: false,
                 email: user.email,
                 firstName: user.firstName,
                 lastName: user.lastName,
@@ -61,6 +66,7 @@ authRouter.post(
             refreshToken,
             user: {
                 id: user.id,
+                isGuest: false,
                 email: user.email,
                 firstName: user.firstName,
                 lastName: user.lastName,
@@ -95,11 +101,37 @@ authRouter.get('/check', requireUser, async (req: Request, res: Response<CheckAu
     const user = await findUserById(req.user!.id);
     return res.status(200).json({
         message: 'User is authenticated',
+        id: user.id,
+        isGuest: user.isGuest,
+        email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        email: user.email,
-        id: user.id,
     });
 });
+
+authRouter.post('/guest', async (req: Request, res: Response<GuestResponse>) => {
+    const user = await createGuestUser();
+    const accessToken = signAccessToken(user.id);
+    const refreshToken = await createRefreshToken(user.id);
+    return res.status(201).json({ message: 'Guest session created', accessToken, refreshToken, user });
+});
+
+authRouter.post(
+    '/promote',
+    requireUser,
+    validateReqBody(promoteSchema),
+    async (req: Request, res: Response<PromoteResponse>) => {
+        const { email, password, firstName, lastName } = req.validatedBody as PromoteInput;
+        const user = await promoteGuestUser(req.user!.id, email, password, firstName, lastName);
+        const accessToken = signAccessToken(user.id);
+        const refreshToken = await createRefreshToken(user.id);
+        return res.status(200).json({
+            message: 'Account promoted successfully',
+            accessToken,
+            refreshToken,
+            user,
+        });
+    },
+);
 
 export default authRouter;

@@ -20,7 +20,15 @@ export const logoutSchema = z.object({
     refreshToken: z.string().optional(),
 });
 
+export const promoteSchema = z.object({
+    email: z.string().email(),
+    password: z.string().min(6),
+    firstName: z.string().min(1),
+    lastName: z.string().min(1),
+});
+
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type RefreshInput = z.infer<typeof refreshSchema>;
 export type LogoutInput = z.infer<typeof logoutSchema>;
+export type PromoteInput = z.infer<typeof promoteSchema>;

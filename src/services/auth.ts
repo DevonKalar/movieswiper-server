@@ -12,9 +12,18 @@ import {
 
 export interface UserPayload {
     id: string;
+    isGuest: false;
     email: string;
     firstName: string;
     lastName: string;
+}
+
+export interface GuestUserPayload {
+    id: string;
+    isGuest: true;
+    email: null;
+    firstName: null;
+    lastName: null;
 }
 
 function hashToken(token: string): string {
@@ -74,15 +83,20 @@ export async function revokeRefreshToken(rawToken: string): Promise<void> {
 export async function authenticateUser(email: string, password: string): Promise<UserPayload> {
     const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user || !user.password || !(await bcrypt.compare(password, user.password))) {
+        throw new UnauthorizedError('Invalid email or password');
+    }
+
+    if (user.isGuest) {
         throw new UnauthorizedError('Invalid email or password');
     }
 
     return {
         id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        isGuest: false,
+        email: user.email!,
+        firstName: user.firstName!,
+        lastName: user.lastName!,
     };
 }
 
@@ -105,29 +119,84 @@ export async function createUser(
     await enqueueEmailNotification({
         userId: user.id,
         eventType: EmailEventType.welcome,
-        templateData: { firstName: user.firstName, lastName: user.lastName },
+        templateData: { firstName: user.firstName!, lastName: user.lastName! },
         idempotencyKey: buildIdempotencyKey(EmailEventType.welcome, user.id),
     });
 
     return {
         id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        isGuest: false,
+        email: user.email!,
+        firstName: user.firstName!,
+        lastName: user.lastName!,
     };
 }
 
-export async function findUserById(userId: string): Promise<UserPayload> {
+export async function findUserById(userId: string): Promise<UserPayload | GuestUserPayload> {
     const user = await prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
         throw new NotFoundError('User not found');
     }
 
+    if (user.isGuest) {
+        return { id: user.id, isGuest: true, email: null, firstName: null, lastName: null };
+    }
+
     return {
         id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        isGuest: false,
+        email: user.email!,
+        firstName: user.firstName!,
+        lastName: user.lastName!,
+    };
+}
+
+export async function createGuestUser(): Promise<GuestUserPayload> {
+    const user = await prisma.user.create({ data: { isGuest: true } });
+    return { id: user.id, isGuest: true, email: null, firstName: null, lastName: null };
+}
+
+export async function promoteGuestUser(
+    userId: string,
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+): Promise<UserPayload> {
+    const existing = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!existing) {
+        throw new NotFoundError('User not found');
+    }
+
+    if (!existing.isGuest) {
+        throw new ConflictError('User is already a full account');
+    }
+
+    const emailConflict = await prisma.user.findUnique({ where: { email } });
+    if (emailConflict) {
+        throw new ConflictError('User with that email already exists');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const user = await prisma.user.update({
+        where: { id: userId },
+        data: { email, firstName, lastName, password: hashedPassword, isGuest: false },
+    });
+
+    await enqueueEmailNotification({
+        userId: user.id,
+        eventType: EmailEventType.welcome,
+        templateData: { firstName: user.firstName!, lastName: user.lastName! },
+        idempotencyKey: buildIdempotencyKey(EmailEventType.welcome, user.id),
+    });
+
+    return {
+        id: user.id,
+        isGuest: false,
+        email: user.email!,
+        firstName: user.firstName!,
+        lastName: user.lastName!,
     };
 }
